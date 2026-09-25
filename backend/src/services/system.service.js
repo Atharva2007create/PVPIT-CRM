@@ -9,7 +9,7 @@ export const systemService = Object.freeze({
     return {
       name: 'PVPIT Student CRM API',
       version: API_VERSION,
-      phase: 'Phase 1 - Backend Foundation',
+      phase: 'Phase 2 - Authentication and Authorization',
       roles: ROLE_VALUES
     };
   },

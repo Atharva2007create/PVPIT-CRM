@@ -25,3 +25,9 @@ it('contains no hardcoded database credentials or secret values', async () => {
     assert.doesNotMatch(content, /(?:password|secret)\s*[:=]\s*['"][^'"]{8,}['"]/i, file);
   }
 });
+
+it('does not add a frontend implementation', async () => {
+  const repositoryRoot = path.resolve(backendRoot, '..');
+  const entries = await readdir(repositoryRoot, { withFileTypes: true });
+  assert.equal(entries.some((entry) => entry.isDirectory() && entry.name.toLowerCase() === 'frontend'), false);
+});

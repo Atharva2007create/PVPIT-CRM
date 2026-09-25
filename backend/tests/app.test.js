@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
 
-describe('Phase 1 HTTP application', () => {
+describe('Phase 1 foundation remains active', () => {
   const app = createApp({ logging: false });
 
   it('creates the application with valid environment configuration', () => {
@@ -46,6 +46,18 @@ describe('Phase 1 HTTP application', () => {
     const response = await request(app).get('/api/v1/notifications');
     assert.equal(response.status, 404);
     assert.equal(response.body.error.code, 'ROUTE_NOT_FOUND');
+  });
+
+  it('has no active later-phase business routes', async () => {
+    const paths = [
+      '/api/v1/students', '/api/v1/academics', '/api/v1/attendance', '/api/v1/grievances',
+      '/api/v1/users', '/api/v1/auth/register'
+    ];
+    for (const path of paths) {
+      const response = await request(app).get(path);
+      assert.equal(response.status, 404, path);
+      assert.equal(response.body.error.code, 'ROUTE_NOT_FOUND', path);
+    }
   });
 
   it('normalizes parser failures through the central error handler', async () => {

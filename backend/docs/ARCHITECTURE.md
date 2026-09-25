@@ -1,38 +1,31 @@
 # Backend architecture
 
-## System boundary
+## Unified boundary
 
-PVPIT CRM is one unified application with one backend and one MongoDB database. It will support exactly two roles: `student` and `administrator`. After authentication is implemented in a later phase, the server will return the role and permissions needed for the frontend to select the appropriate workflow. Server-side authorization will remain authoritative.
+PVPIT CRM has one Express backend, one MongoDB database, one User collection, and one authentication system. The only active roles are `student` and `administrator`. Additional staff designations are deferred and can be added later through centralized role and permission mappings.
 
-## Phase 1 flow
+## Request flow
 
 ```text
 HTTP request
   -> security, CORS, parsing, logging, request ID
-  -> central router
+  -> router and Zod validation
+  -> requireAuth / requireRole / requirePermission
   -> controller
   -> service
   -> repository
-  -> MongoDB connection adapter
+  -> Mongoose model
   -> standard response or central error handler
 ```
 
-The Express app is created separately from server startup so tests do not open ports or databases. The server connects to MongoDB before listening and disconnects on `SIGINT` or `SIGTERM`.
+Controllers translate HTTP, services own authentication decisions, repositories isolate database access, and models define persistence. The Express app is separate from startup so tests do not open ports or connect to Atlas.
 
-## Authorization foundation
+## Authentication authority
 
-The role constants contain only `student` and `administrator`. Phase 1 has no protected routes, accounts, passwords, tokens, or persisted user model. Permission constants only reserve each workflow boundary; domain permissions will be introduced with the routes that enforce them.
+Login never accepts a role. Configured email patterns determine whether an address is structurally eligible, but the stored MongoDB role is the authorization authority. A pattern/role disagreement is rejected. JWTs contain only subject ID, role, token version, issuer, issued time, and expiration.
 
-## Portability and security
+For each protected request, middleware verifies the signature and expiry, loads the current user, checks active status, compares the stored role and token version, and attaches a safe identity. Logout atomically increments `tokenVersion`, invalidating previously issued tokens.
 
-Configuration comes only from environment variables. Helmet sets security headers, CORS accepts the configured client origin, body sizes are limited, request IDs correlate errors, and production responses never expose stack traces. The data layer uses Mongoose without cloud-specific services.
+## Security and portability
 
-## Deferred phases
-
-- Authentication, role routing, user accounts, profiles, academics, and attendance
-- Mentoring, risk, skills, projects, certifications, and achievements
-- Internships, training, placement, scholarships, and documents
-- Grievances, requests, communication, search, counselling, and feedback
-- Alumni, dashboards, analytics, reports, accreditation, deployment, and production hardening
-
-Notifications, external email/SMS, Redis, queues, AWS/S3, SSO, and frontend implementation are not part of Phase 1.
+Passwords are hashed with bcryptjs and never selected by ordinary queries or serialized. Configuration is environment-only. Helmet, exact-origin CORS, body limits, request IDs, safe errors, and graceful MongoDB shutdown remain active. No AWS, Redis, queues, external identity provider, notification service, or frontend code is included.

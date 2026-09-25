@@ -4,30 +4,42 @@
 
 - Node.js 22.8 or newer
 - npm
-- A reachable MongoDB deployment, local or Atlas
+- A reachable local MongoDB or Atlas deployment
 
 ## Configure
-
-From the `backend` directory:
 
 ```powershell
 Copy-Item .env.example .env
 notepad .env
 ```
 
-Set all five variables:
+Required runtime variables:
 
 | Variable | Purpose |
 |---|---|
 | `NODE_ENV` | `development`, `test`, or `production` |
-| `PORT` | API listening port |
+| `PORT` | API port |
 | `MONGODB_URI` | MongoDB connection URI |
-| `JWT_SECRET` | Reserved for later authentication; use 32+ random characters |
+| `JWT_SECRET` | Random secret with at least 32 characters |
+| `JWT_EXPIRES_IN` | Access-token lifetime, for example `15m` |
+| `PASSWORD_MIN_LENGTH` | Configurable minimum, 8–128 |
 | `CLIENT_ORIGIN` | Exact allowed browser origin |
+| `STUDENT_EMAIL_PATTERN` | Approved student-email regular expression |
+| `ADMINISTRATOR_EMAIL_PATTERN` | Approved administrator-email regular expression |
 
-For Atlas, create a database user, allow the development machine's IP in Network Access, and paste the driver URI into `MONGODB_URI`. URL-encode special characters in credentials. Do not commit `.env` or share its contents.
+The repository does not contain confirmed institutional formats. The `example.test` expressions are development placeholders and must be replaced with formats approved by PVPIT before real account creation.
 
-## Install, verify, and run
+## First administrator
+
+Set `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, and `INITIAL_ADMIN_PASSWORD`, then manually run:
+
+```powershell
+npm run bootstrap:admin
+```
+
+The command validates the administrator pattern, hashes the password, and creates at most one account per email. It does not run during server startup and never prints the password. Remove bootstrap values from the local environment when finished.
+
+## Verify and run
 
 ```powershell
 npm install
@@ -35,14 +47,4 @@ npm test
 npm run dev
 ```
 
-In another terminal:
-
-```powershell
-Invoke-RestMethod http://localhost:5000/health
-Invoke-RestMethod http://localhost:5000/api/v1
-Invoke-RestMethod http://localhost:5000/api/v1/health
-```
-
-Use `npm start` for a non-watch process. A startup configuration or MongoDB failure produces a clear message and a non-zero exit code.
-
-No seed, migration, backup, upload, or deployment operation is part of Phase 1.
+No migration, seed, frontend, notification, upload, or deployment operation is part of Phase 2.

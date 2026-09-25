@@ -1,34 +1,17 @@
 # PVPIT Student CRM Backend
 
-Portable Node.js and Express foundation for the unified PVPIT Student CRM. Phase 1 establishes configuration, MongoDB connectivity, layered structure, security middleware, response contracts, health endpoints, validation utilities, and the two-role authorization foundation.
+Portable Node.js and Express backend for the unified PVPIT Student CRM. Phase 1 provides the application foundation; Phase 2 adds unified accounts, password hashing, JWT access-token authentication, logout invalidation, and centralized role authorization.
 
-This is a non-production MVP. Authentication, JWT issuance, users, student profiles, academics, attendance, notifications, and every other business module are intentionally deferred.
+This is a non-production MVP with exactly two active roles: `student` and `administrator`. Both use one User model, API, authentication system, and MongoDB database. Business modules and frontend code remain deferred.
 
 ## Technology
 
-- Node.js 22.8+
-- Express 5
-- MongoDB with Mongoose
-- Zod, dotenv, CORS, Helmet, Morgan
+- Node.js 22.8+, Express 5, MongoDB/Mongoose
+- Zod, dotenv, Helmet, CORS, Morgan
+- bcryptjs password hashing and jsonwebtoken access tokens
 - Node test runner and Supertest
 
-## Structure
-
-```text
-src/
-  config/        environment and database lifecycle
-  constants/     two-role authorization foundation
-  controllers/   HTTP translation
-  middleware/    request IDs, validation, errors, authorization helpers
-  repositories/  data/infrastructure access boundary
-  routes/        central route registration
-  services/      application logic
-  utils/         errors, responses, async and pagination helpers
-```
-
-Request flow is `route -> controller -> service -> repository -> database adapter`. MongoDB access stays behind the repository layer.
-
-## Quick start
+## Setup
 
 ```powershell
 Copy-Item .env.example .env
@@ -37,24 +20,27 @@ npm test
 npm run dev
 ```
 
-Edit `.env` before starting. Never commit it. Detailed instructions are in [docs/SETUP.md](docs/SETUP.md).
+Replace all development placeholders in `.env`; never commit that file. See [docs/SETUP.md](docs/SETUP.md).
 
-## Scripts
+## Commands
 
-- `npm run dev` — run with Node watch mode
-- `npm start` — run without watch mode
-- `npm test` — run the Phase 1 test suite
-- `npm run test:watch` — run tests in watch mode
-- `npm run test:coverage` — collect test coverage
+- `npm run dev` — development server with watch mode
+- `npm start` — server without watch mode
+- `npm run bootstrap:admin` — manually create the first administrator, idempotently
+- `npm test` — Phase 1 and Phase 2 tests
+- `npm run test:coverage` — test coverage
 
 ## Active endpoints
 
 - `GET /health`
 - `GET /api/v1`
 - `GET /api/v1/health`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/auth/me`
+- `POST /api/v1/auth/logout`
 
-See [docs/API.md](docs/API.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+See [docs/API.md](docs/API.md), [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md), and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Deferred work
+## Current limitations
 
-Later approved phases will add authentication and the student/administrator workflows. Phase 1 contains no login, password hashing, tokens, CRUD, uploads, notifications, queues, cloud-provider integration, analytics, reports, or frontend code.
+There is no public registration, administrator self-registration, refresh-token rotation, password reset, email verification, SSO, notifications, or business-module API. HTTP-only cookie support and production session controls are future upgrades.
