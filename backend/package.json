@@ -1,0 +1,29 @@
+{
+  "name": "pvpit-student-crm-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Portable REST API for the PVPIT Student CRM",
+  "engines": {
+    "node": ">=22.8"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --import ./tests/setup-env.js --test --test-isolation=none",
+    "test:watch": "node --import ./tests/setup-env.js --test --test-isolation=none --watch",
+    "test:coverage": "node --import ./tests/setup-env.js --experimental-test-coverage --test --test-isolation=none"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.18.1",
+    "morgan": "^1.10.1",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}
